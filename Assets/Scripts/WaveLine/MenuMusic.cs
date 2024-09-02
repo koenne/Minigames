@@ -5,24 +5,37 @@ using static Unity.VisualScripting.Member;
 
 public class MenuMusic : MonoBehaviour
 {
-    public AudioSource intro;
+    public AudioSource music;
+    public AudioClip intro;
     public AudioClip loop;
+    public AudioClip menuStart;
+    public AudioClip menuLoop;
     private bool isDead = false;
     private void Start()
     {
+        intro.LoadAudioData();
         loop.LoadAudioData();
+        menuStart.LoadAudioData();
+        menuLoop.LoadAudioData();
+        stopStartMusic(true);
     }
     IEnumerator waitForSound()
     {
-        while (intro.isPlaying)
+        while (music.isPlaying)
         {
             yield return null;
         }
         if (!isDead)
         {
-            intro.clip = loop;
-            intro.loop = true;
-            intro.Play();
+            music.clip = loop;
+            music.loop = true;
+            music.Play();
+        }
+        if(isDead && music.clip == menuStart)
+        {
+            music.clip = menuLoop;
+            music.loop = true;
+            music.Play();
         }
     }
     public void stopStartMusic(bool start)
@@ -30,13 +43,28 @@ public class MenuMusic : MonoBehaviour
         if (start)
         {
             isDead = false;
-            intro.Play();
-            StartCoroutine(waitForSound());
+            music.loop = false;
+            music.Stop();
+            ChangeMusic();
         }
         else
         {
-            isDead=true;
-            intro.Stop();
+            isDead = true;
+            music.loop = false;
+            music.Stop();
+            DefaultMusic();
         }
+    }
+    public void DefaultMusic()
+    {
+        music.clip = menuStart;
+        music.Play();
+        StartCoroutine(waitForSound());
+    }
+    public void ChangeMusic()
+    {
+        music.clip = intro;
+        music.Play();
+        StartCoroutine(waitForSound());
     }
 }
