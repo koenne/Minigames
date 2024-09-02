@@ -7,17 +7,22 @@ public class WLPlayerScript : MonoBehaviour
 {
     private Rigidbody2D rb;
     private ConstantForce2D customGravity;
-    public bool isDead = false;
+    public bool isDead = true;
     public GameObject deadAnimation;
     public WLScoreScript WLScoreScript;
     public GameObject restartButton;
     public WLDeadScript WLDeadScript;
     public TrailRenderer line;
+    public AudioClip deathSound;
+    public AudioSource playerSounds;
+    private MenuMusic music;
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         customGravity = GetComponent<ConstantForce2D>();
+        deathSound.LoadAudioData();
+        music = FindAnyObjectByType<MenuMusic>();
     }
     void Update()
     {
@@ -61,11 +66,15 @@ public class WLPlayerScript : MonoBehaviour
             customGravity.force = new Vector2(0, 0);
             rb.velocity = new Vector2(0, 0);
             WLScoreScript.playerDied();
+            playerSounds.Play();
+            music.stopStartMusic(false);
             StartCoroutine(Wait());
         }
     }
     public void AliveAgain()
     {
+        playerSounds.Play();
+        music.stopStartMusic(true);
         restartButton.SetActive(false);
         WLScoreScript.playerAlive();
         WLDeadScript.ResetScale();
